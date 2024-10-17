@@ -1,48 +1,48 @@
-
-const Category = require('../models/Category');
-const { categorySchema, categoryUpdateSchema } = require('../schemas/categorySchemas');
+import Category from '../models/Category.js';
+import { categorySchema, categoryUpdateSchema } from '../schemas/categorySchemas.js';
+import mongoose from 'mongoose';
 
 // Get all categories
-const getCategories = async (req, res) => {
-    const categories = await Category.findAll();
+export const getCategories = async (req, res) => {
+    const categories = await Category.find();
     res.json(categories);
 };
 
 // Create a category
-const createCategory = async (req, res) => {
+export const createCategory = async (req, res) => {
     const { error } = categorySchema.validate(req.body);
     if (error) return res.status(400).json({ error: error.details[0].message });
 
-    const category = await Category.create(req.body);
+    const category = new Category(req.body);
+    await category.save();
     res.status(201).json(category);
 };
 
 // Get a specific category by ID
-const getCategoryById = async (req, res) => {
-    const category = await Category.findByPk(req.params.id);
+export const getCategoryById = async (req, res) => {
+    const category = await Category.findById(req.params.id);
     if (!category) return res.status(404).json({ error: 'Category not found' });
     res.json(category);
 };
 
 // Update a category by ID
-const updateCategory = async (req, res) => {
+export const updateCategory = async (req, res) => {
     const { error } = categoryUpdateSchema.validate(req.body);
     if (error) return res.status(400).json({ error: error.details[0].message });
 
-    const category = await Category.findByPk(req.params.id);
+    const category = await Category.findById(req.params.id);
     if (!category) return res.status(404).json({ error: 'Category not found' });
 
-    await category.update(req.body);
+    Object.assign(category, req.body);
+    await category.save();
     res.json(category);
 };
 
 // Delete a category by ID
-const deleteCategory = async (req, res) => {
-    const category = await Category.findByPk(req.params.id);
+export const deleteCategory = async (req, res) => {
+    const category = await Category.findById(req.params.id);
     if (!category) return res.status(404).json({ error: 'Category not found' });
 
-    await category.destroy();
+    await category.remove();
     res.status(204).send();
 };
-
-module.exports = { getCategories, createCategory, getCategoryById, updateCategory, deleteCategory };

@@ -1,4 +1,4 @@
-const Joi = require('joi');
+import Joi from 'joi';
 
 const orderSchema = Joi.object({
     userId: Joi.number().required(), // Example of required field for creating an order
@@ -17,4 +17,4 @@ const orderUpdateSchema = Joi.object({
     // Ensure 'total' is not included here either.
 });
 
-module.exports = { orderSchema, orderUpdateSchema };
+export { orderSchema, orderUpdateSchema };

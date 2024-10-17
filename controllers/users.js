@@ -1,48 +1,47 @@
-const User = require('../models/User');
-const { userSchema, userUpdateSchema } = require('../schemas/userSchemas');
+import User from '../models/User.js';
+import { userSchema, userUpdateSchema } from '../schemas/userSchemas.js';
 
 // Get all users
-const getUsers = async (req, res) => {
-    const users = await User.findAll();
+export const getUsers = async (req, res) => {
+    const users = await User.find();
     res.json(users);
 };
 
 // Create a user
-const createUser = async (req, res) => {
+export const createUser = async (req, res) => {
     const { error } = userSchema.validate(req.body);
     if (error) return res.status(400).json({ error: error.details[0].message });
 
-    const user = await User.create(req.body);
+    const user = new User(req.body);
+    await user.save();
     res.status(201).json(user);
 };
 
 // Get a specific user by ID
-const getUserById = async (req, res) => {
-    const user = await User.findByPk(req.params.id);
+export const getUserById = async (req, res) => {
+    const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
     res.json(user);
 };
 
 // Update a user by ID
-const updateUser = async (req, res) => {
+export const updateUser = async (req, res) => {
     const { error } = userUpdateSchema.validate(req.body);
     if (error) return res.status(400).json({ error: error.details[0].message });
 
-    const user = await User.findByPk(req.params.id);
+    const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    await user.update(req.body);
+    Object.assign(user, req.body);
+    await user.save();
     res.json(user);
 };
 
 // Delete a user by ID
-const deleteUser = async (req, res) => {
-    const user = await User.findByPk(req.params.id);
+export const deleteUser = async (req, res) => {
+    const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    await user.destroy();
+    await User.deleteOne({ _id: req.params.id });
     res.status(204).send();
 };
-
-module.exports = { getUsers, createUser, getUserById, updateUser, deleteUser };
-

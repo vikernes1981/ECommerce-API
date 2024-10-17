@@ -1,15 +1,15 @@
-require('dotenv').config(); 
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const userRouter = require('./routers/userRouter');
-const productRouter = require('./routers/productRouter');
-const categoryRouter = require('./routers/categoryRouter');
-const orderRouter = require('./routers/orderRouter');
-const sequelize = require('./db');
+import 'dotenv/config';
+import express from 'express';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+import mongoose from 'mongoose';
+import userRouter from './routers/userRouter.js';
+import productRouter from './routers/productRouter.js';
+import categoryRouter from './routers/categoryRouter.js';
+import orderRouter from './routers/orderRouter.js';
 
 const app = express();
-const PORT = process.env.PORT || 3000; 
+const PORT = process.env.PORT || 5000; 
 
 // Middleware
 app.use(bodyParser.json());
@@ -21,10 +21,11 @@ app.use('/products', productRouter);
 app.use('/categories', categoryRouter);
 app.use('/orders', orderRouter);
 
-// Sync database and start server
+// Connect to MongoDB and start server
 const startServer = async () => {
     try {
-        await sequelize.sync();
+        await mongoose.connect(process.env.MONGO_URI);
+        console.log('Connected to MongoDB');
         app.listen(PORT, () => {
             console.log(`Server is running on port ${PORT}`);
         });

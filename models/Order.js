@@ -1,32 +1,30 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../db');
-const User = require('./User');
-const Product = require('./Product');
+import mongoose from 'mongoose';
 
-const Order = sequelize.define('Order', {
-    id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-    },
+const orderSchema = new mongoose.Schema({
     userId: {
-        type: DataTypes.INTEGER,
-        references: {
-            model: User,
-            key: 'id',
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    },
+    products: [{
+        productId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Product',
+            required: true,
         },
-    },
-    products: {
-        type: DataTypes.JSON, // Store array of productId and quantity
-        allowNull: false,
-    },
+        quantity: {
+            type: Number,
+            required: true,
+        }
+    }],
     total: {
-        type: DataTypes.FLOAT,
-        allowNull: false,
+        type: Number,
+        required: true,
     },
+}, {
+    timestamps: true,
 });
 
-Order.belongsTo(User, { foreignKey: 'userId' });
-Order.belongsToMany(Product, { through: 'OrderProducts' });
+const Order = mongoose.model('Order', orderSchema);
 
-module.exports = Order;
+export default Order;

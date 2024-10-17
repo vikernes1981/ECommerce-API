@@ -1,25 +1,28 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../db');
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 
-const User = sequelize.define('User', {
-    id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-    },
+dotenv.config();
+
+const mongoURI = process.env.MONGO_URI;
+
+mongoose.connect(mongoURI);
+
+const userSchema = new mongoose.Schema({
     name: {
-        type: DataTypes.STRING,
-        allowNull: false,
+        type: String,
+        required: true,
     },
     email: {
-        type: DataTypes.STRING,
+        type: String,
         unique: true,
-        allowNull: false,
+        required: true,
     },
     password: {
-        type: DataTypes.STRING,
-        allowNull: false,
+        type: String,
+        required: true,
     },
 });
 
-module.exports = User;
+const User = mongoose.model('User', userSchema);
+
+export default User;

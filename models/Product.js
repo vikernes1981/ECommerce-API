@@ -1,34 +1,27 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../db');
-const Category = require('./Category');
+import mongoose from 'mongoose';
 
-const Product = sequelize.define('Product', {
-    id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-    },
+const { Schema, model } = mongoose;
+
+const productSchema = new Schema({
     name: {
-        type: DataTypes.STRING,
-        allowNull: false,
+        type: String,
+        required: true,
     },
     description: {
-        type: DataTypes.STRING,
-        allowNull: true,
+        type: String,
+        required: false,
     },
     price: {
-        type: DataTypes.FLOAT,
-        allowNull: false,
+        type: Number,
+        required: true,
     },
     categoryId: {
-        type: DataTypes.INTEGER,
-        references: {
-            model: Category,
-            key: 'id',
-        },
+        type: Schema.Types.ObjectId,
+        ref: 'Category',
+        required: true,
     },
 });
 
-Product.belongsTo(Category, { foreignKey: 'categoryId' });
+const Product = model('Product', productSchema);
 
-module.exports = Product;
+export default Product;

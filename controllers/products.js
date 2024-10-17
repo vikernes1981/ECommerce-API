@@ -1,53 +1,52 @@
-const Product = require('../models/Product');
-const { productSchema, productUpdateSchema } = require('../schemas/productSchemas');
-const Category = require('../models/Category');
+import Product from '../models/Product.js';
+import { productSchema, productUpdateSchema } from '../schemas/productSchemas.js';
+import Category from '../models/Category.js';
 
 // Get all products
-const getProducts = async (req, res) => {
+export const getProducts = async (req, res) => {
     const { categoryId } = req.query;
-    const products = categoryId ? await Product.findAll({ where: { categoryId } }) : await Product.findAll();
+    const products = categoryId ? await Product.find({ categoryId }) : await Product.find();
     res.json(products);
 };
 
 // Create a product
-const createProduct = async (req, res) => {
+export const createProduct = async (req, res) => {
     const { error } = productSchema.validate(req.body);
     if (error) return res.status(400).json({ error: error.details[0].message });
 
-    const category = await Category.findByPk(req.body.categoryId);
+    const category = await Category.findById(req.body.categoryId);
     if (!category) return res.status(400).json({ error: 'Category does not exist' });
 
-    const product = await Product.create(req.body);
+    const product = new Product(req.body);
+    await product.save();
     res.status(201).json(product);
 };
 
 // Get a specific product by ID
-const getProductById = async (req, res) => {
-    const product = await Product.findByPk(req.params.id);
+export const getProductById = async (req, res) => {
+    const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ error: 'Product not found' });
     res.json(product);
 };
 
 // Update a product by ID
-const updateProduct = async (req, res) => {
+export const updateProduct = async (req, res) => {
     const { error } = productUpdateSchema.validate(req.body);
     if (error) return res.status(400).json({ error: error.details[0].message });
 
-    const product = await Product.findByPk(req.params.id);
+    const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ error: 'Product not found' });
 
-    await product.update(req.body);
+    Object.assign(product, req.body);
+    await product.save();
     res.json(product);
 };
 
 // Delete a product by ID
-const deleteProduct = async (req, res) => {
-    const product = await Product.findByPk(req.params.id);
+export const deleteProduct = async (req, res) => {
+    const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ error: 'Product not found' });
 
-    await product.destroy();
+    await product.remove();
     res.status(204).send();
 };
-
-module.exports = { getProducts, createProduct, getProductById, updateProduct, deleteProduct };
-
